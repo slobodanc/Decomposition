@@ -1,0 +1,29 @@
+package decomposition;
+
+import com.maxeler.maxcompiler.v2.managers.standard.SimulationManager;
+
+public class DecompositionKernelSimRunner {
+
+	public static void main(String[] args) {
+
+		int n = 1; // to do
+		double[] components = new double[n];
+		double[] v = new double[n];
+		for (int i = 0; i < n; i++)
+			components[i] = i + 1;
+
+		SimulationManager m = new SimulationManager("decompositionKernelSim");
+		DecompositionKernel dk = new DecompositionKernel(
+				m.makeKernelParameters("decompositionKernel"));
+		m.setKernel(dk);
+		m.setInputData("input", components);
+		m.setInputData("v", v);
+		m.setScalarInput("n", n);
+		m.setKernelCycles(19);
+		m.runTest();
+		m.dumpOutput();
+
+		m.logMsg("Test done!");
+	}
+
+}

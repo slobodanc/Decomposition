@@ -1,0 +1,5 @@
+#
+# This file is managed by MaxIDE. Do NOT change.
+#
+HEADERS:= ludcmp.hpp nr3.hpp 
+SOURCES:= ludcmp.cpp main.cpp 

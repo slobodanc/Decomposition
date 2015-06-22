@@ -1,0 +1,93 @@
+package decomposition;
+
+import com.maxeler.maxcompiler.v2.kernelcompiler.Kernel;
+import com.maxeler.maxcompiler.v2.kernelcompiler.KernelParameters;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.CounterChain;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.Mem.RamWriteMode;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.Stream.OffsetExpr;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.memory.Memory;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEType;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEVar;
+import com.maxeler.maxcompiler.v2.utils.MathUtils;
+
+
+class DecompositionKernel extends Kernel {
+
+	private static final DFEType doubleType = dfeFloat(11, 53);
+	private static final DFEType intType = dfeUInt(32);
+
+	//kernel for finding pivot element
+	protected DecompositionKernel(KernelParameters parameters) {
+		super(parameters);
+
+		Memory<DFEVar> index = mem.alloc(doubleType, 2);
+		DFEVar zero = constant.var(dfeUInt(1), 0);
+
+		// Set up counters
+		DFEVar n = io.scalarInput("n", intType);
+		OffsetExpr loopLength = stream.makeOffsetAutoLoop("loopLength");
+		DFEVar loopLengthVal = loopLength.getDFEVar(this, dfeUInt(8));
+		CounterChain chain = control.count.makeCounterChain();
+		DFEVar i = chain.addCounter(n, 1);
+		DFEVar loopCounter = chain.addCounter(loopLengthVal, 1);
+
+		// Input
+		DFEVar input = io.input("input", doubleType, loopCounter === 0);
+		DFEVar v	 = io.input("v", doubleType, loopCounter === 0);
+
+		DFEVar previousBig = doubleType.newInstance(this);
+		DFEVar big = i === 0 ? 0.0 : previousBig;
+		DFEVar newBig = ((input*v) > big) ? (input*v) : big;
+
+		DFEVar newOffset = stream.offset(newBig, -loopLength);
+		previousBig <== newOffset;
+
+		io.output("output", index.port(zero, i.cast(doubleType), (input*v) > big, RamWriteMode.WRITE_FIRST), doubleType, i === (n - 1) & loopCounter === (loopLengthVal - 1) | i === (n - 1) & loopCounter === (loopLengthVal - 2) ); //padding
+
+		//simulation watches
+		input.simWatch("input");
+		i.simWatch("i");
+		loopCounter.simWatch("loopCounter");
+		big.simWatch("big");
+		v.simWatch("v");
+
+	}
+
+	//kernel for the innermost loop
+	protected DecompositionKernel(KernelParameters parameters, int fmem_size) {
+		super(parameters);
+
+		int addrBits = MathUtils.bitsToAddress(fmem_size);
+		Memory<DFEVar> fMemRow = mem.alloc(doubleType, fmem_size);
+		Memory<DFEVar> fMemCol = mem.alloc(doubleType, fmem_size);
+
+		DFEVar input  = io.input("input", doubleType);
+
+		CounterChain countChain = control.count.makeCounterChain();
+		DFEVar n = io.scalarInput("n", intType).cast(dfeUInt(addrBits));
+		DFEVar i = countChain.addCounter(n, 1).cast(dfeUInt(addrBits));
+		DFEVar j = countChain.addCounter(n, 1).cast(dfeUInt(addrBits));
+		DFEVar zero = constant.var(dfeUInt(addrBits), 0);
+		DFEVar writeRowEnable = i.eq(0);
+		DFEVar writeColEnable = j.eq(0);
+
+		fMemRow.write(j, input, writeRowEnable);
+		fMemCol.write(i, input / fMemRow.read(zero), writeColEnable);
+
+		DFEVar computeResult = i.neq(0);
+
+		DFEVar result = j.eq(0) ? (input / fMemRow.read(zero)) : (input - (fMemCol.read(i)  * fMemRow.read(j)));
+		DFEVar output = computeResult ? result : input;
+		io.output("output", output, doubleType);
+
+		//simulation watches
+		n.simWatch("n");
+		i.simWatch("i");
+		j.simWatch("j");
+		input.simWatch("input");
+		output.simWatch("output");
+		computeResult.simWatch("computeResult");
+
+	}
+
+}

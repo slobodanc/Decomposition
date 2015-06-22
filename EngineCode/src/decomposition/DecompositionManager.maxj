@@ -1,0 +1,78 @@
+package decomposition;
+
+import com.maxeler.maxcompiler.v2.build.EngineParameters;
+import com.maxeler.maxcompiler.v2.managers.custom.CustomManager;
+import com.maxeler.maxcompiler.v2.managers.custom.DFELink;
+import com.maxeler.maxcompiler.v2.managers.custom.blocks.KernelBlock;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.CPUTypes;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.EngineInterface;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.EngineInterface.Direction;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.InterfaceParam;
+
+public class DecompositionManager extends CustomManager {
+
+	private static final String FIRST_KERNEL_NAME = "DecompositionKernel1";
+	private static final String SECOND_KERNEL_NAME = "DecompositionKernel2";
+	private static final int FMEM_SIZE = 1024; // to do
+
+	public DecompositionManager(EngineParameters engineParams) {
+		super(engineParams);
+		KernelBlock k1 = addKernel(new DecompositionKernel(makeKernelParameters(FIRST_KERNEL_NAME)));
+		KernelBlock k2 = addKernel(new DecompositionKernel(makeKernelParameters(SECOND_KERNEL_NAME),FMEM_SIZE));
+		DFELink input1 = addStreamFromCPU("input1");
+		DFELink input2 = addStreamFromCPU("input2");
+		DFELink	v	   = addStreamFromCPU("v");
+
+		k1.getInput("v") 	 <== v;
+		k1.getInput("input") <== input1;
+		k2.getInput("input") <== input2;
+
+		DFELink output1 = addStreamToCPU("output1");
+		DFELink output2 = addStreamToCPU("output2");
+		output1  <== k1.getOutput("output");
+		output2 <== k2.getOutput("output");
+
+	}
+
+	private static EngineInterface interfaceFirstKernel(String name) {
+		EngineInterface ei = new EngineInterface(name);
+		InterfaceParam n = ei.addParam("n", CPUTypes.INT);
+		InterfaceParam sizeInBytes = (n + n%2) * CPUTypes.INT.sizeInBytes();  //check
+		InterfaceParam loopLength = ei.getAutoLoopOffset(FIRST_KERNEL_NAME, "loopLength");
+
+		ei.ignoreAutoLoopOffset(FIRST_KERNEL_NAME, "loopLength");
+
+		ei.setScalar(FIRST_KERNEL_NAME, "n", n);
+		ei.setTicks(FIRST_KERNEL_NAME, (n + n%2) * loopLength);
+		ei.setStream("v", CPUTypes.DOUBLE, sizeInBytes);
+		ei.setStream("input1", CPUTypes.DOUBLE, sizeInBytes);
+		ei.setStream("output1", CPUTypes.DOUBLE, 2*CPUTypes.INT.sizeInBytes());
+
+		ei.ignoreAll(Direction.IN_OUT);
+		return ei;
+	}
+
+	private static EngineInterface interfaceSecondKernel(String name) {
+		EngineInterface ei = new EngineInterface(name);
+		InterfaceParam n = ei.addParam("n", CPUTypes.INT);
+		InterfaceParam sizeInBytes = (n * n + n%2) * CPUTypes.INT.sizeInBytes();		 //check
+		ei.setScalar(SECOND_KERNEL_NAME, "n", n);
+		ei.setTicks(SECOND_KERNEL_NAME, (n * n + n%2));
+		ei.setStream("input2", CPUTypes.DOUBLE, sizeInBytes);
+		ei.setStream("output2", CPUTypes.DOUBLE, sizeInBytes);
+		ei.ignoreAll(Direction.IN_OUT);
+		return ei;
+	}
+
+
+
+	public static void main(String[] args) {
+		EngineParameters params = new EngineParameters(args);
+		DecompositionManager manager = new DecompositionManager(params);
+		manager.addMaxFileConstant("FMEM_SIZE", FMEM_SIZE);
+		manager.createSLiCinterface(interfaceFirstKernel("firstKernel"));
+		manager.createSLiCinterface(interfaceSecondKernel("secondKernel"));
+		manager.build();
+	}
+
+}

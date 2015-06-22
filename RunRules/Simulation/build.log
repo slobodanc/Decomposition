@@ -1,0 +1,60 @@
+Thu 02:50: ########################################## 
+Thu 02:50: Compiling.
+Thu 02:50: ########################################## 
+
+Thu 02:50: MaxCompiler version: 2014.1 (simulation only).
+Thu 02:50: Build Simulation run rule for Decomposition start time: Thu May 22 02:50:05 PDT 2014.
+Thu 02:50: Project location: /home/demo/workspace/Decomposition.
+Thu 02:50: Detailed build log: /home/demo/workspace/Decomposition/RunRules/Simulation/build.log.
+
+Thu 02:50: Compiling Engine Code.
+Thu 02:50: Engine building skipped (no changes on .max files).
+Thu 02:50: Compiling CPU Code.
+Thu 02:50: Run CPU project make files updating
+Thu 02:50: Executing command:
+Thu 02:50: java -jar /opt/maxeler/maxcompiler/lib/MaxIDE/projectAdmin.jar -u /home/demo/workspace/Decomposition Simulation 
+Thu 02:50: Command output:
+
+Thu 02:50: MaxCompiler Project Admin Tool Version 2014.1.00012
+Thu 02:50:  Copyright Maxeler Technologies 2010 - 2014. All rights reserved.
+
+Thu 02:50: Handler version 2
+Thu 02:50: Updating RunRule dependent Makefiles for RunRule 'Simulation'
+Thu 02:50: 	Updating: Simulation
+Thu 02:50: Found makefiles: 1
+Thu 02:50: 	Updated: Simulation
+Thu 02:50: Run CPU make.
+Thu 02:50: make RUNRULE=Simulation 
+Thu 02:50: Command output:
+Thu 02:50: make -f Makefile.rules build
+Thu 02:50: make[1]: Entering directory `/home/demo/workspace/Decomposition/CPUCode'
+Thu 02:50: set -e; rm -f ../RunRules/Simulation/objects/cpp/main.d ;                                                               \
+Thu 02:50: 	  g++ -M -Wall -Wextra -g -O3 -I../RunRules/Simulation/include  -I '/opt/maxeler/maxcompiler/include/slic'  -Wno-error main.cpp > ../RunRules/Simulation/objects/cpp/main.d.$$ ;                                \
+Thu 02:50:       sed 's,\(main\)\.o[ :]*,../RunRules/Simulation/objects/cpp/\1.o ../RunRules/Simulation/objects/cpp/main.d : ,g' < ../RunRules/Simulation/objects/cpp/main.d.$$ > ../RunRules/Simulation/objects/cpp/main.d; \
+Thu 02:50:       rm -f ../RunRules/Simulation/objects/cpp/main.d.$$
+Thu 02:50: make[1]: Leaving directory `/home/demo/workspace/Decomposition/CPUCode'
+Thu 02:50: make[1]: Entering directory `/home/demo/workspace/Decomposition/CPUCode'
+Thu 02:50: g++ -Wall -Wextra -g -O3 -I../RunRules/Simulation/include  -I '/opt/maxeler/maxcompiler/include/slic'  -c main.cpp -o ../RunRules/Simulation/objects/cpp/main.o
+Thu 02:50: g++ -Wall -Wextra -g -O3 -I../RunRules/Simulation/include  -I '/opt/maxeler/maxcompiler/include/slic'  -o ../RunRules/Simulation/binaries/Decomposition ../RunRules/Simulation/objects/maxfiles/slic_Decomposition.o ../RunRules/Simulation/objects/cpp/ludcmp.o ../RunRules/Simulation/objects/cpp/main.o -g -O3  -L '/opt/maxeler/maxcompiler/lib' -lslic -L '/opt/maxeler/maxcompiler/lib/maxeleros-sim/lib' -lmaxeleros -lpthread -lm -lrt 
+Thu 02:50: make[1]: Leaving directory `/home/demo/workspace/Decomposition/CPUCode'
+Thu 02:50: Build completed: Thu May 22 02:50:07 PDT 2014
+
+
+Thu 02:50: ########################################## 
+Thu 02:50: Running
+Thu 02:50: ########################################## 
+Thu 02:50: Executing command:
+Thu 02:50: '/home/demo/workspace/Decomposition/RunRules/Simulation/binaries/Decomposition' 
+Thu 02:50: Command output:
+Thu 02:50: 83.000000	86.000000	77.000000	15.000000	93.000000	35.000000	86.000000	92.000000	49.000000	21.000000	
+Thu 02:50: 1.048193	-82.144578	-4.710843	62.277108	-9.481928	47.313253	-87.144578	-45.433735	2.638554	76.987952	
+Thu 02:50: 0.060241	-0.241273	78.224846	41.122177	28.109856	14.306982	19.793634	12.495893	10.684805	74.310062	
+Thu 02:50: 0.289157	-0.853769	0.712216	64.545081	-41.007228	87.084470	-79.366185	-10.292115	23.474156	56.732876	
+Thu 02:50: 0.349398	-0.522881	-0.106959	0.785821	81.779054	-17.392311	86.870337	-22.476690	-18.044493	66.284357	
+Thu 02:50: 0.385542	-0.326782	0.572374	0.914565	0.262420	-69.302091	2.825718	43.842019	53.121570	-55.751475	
+Thu 02:50: 0.349398	0.341449	-0.042123	0.514784	0.758600	-0.109416	68.806832	67.041162	0.845459	-74.083223	
+Thu 02:50: 0.746988	0.453359	0.442540	0.021119	-0.168073	0.471676	0.311760	-72.795390	0.624621	11.860241	
+Thu 02:50: 0.156627	-0.152537	0.999953	0.713144	0.502854	-0.102029	0.416374	-0.430878	75.713808	-28.373889	
+Thu 02:50: 0.132530	-0.689058	0.684554	0.647211	0.861329	-0.097943	-0.671091	-0.635375	0.812619	-83.998185	
+Thu 02:50: Test done. Elapsed time: 0.000000 
+Thu 02:50: Process terminated with exit code 0.
